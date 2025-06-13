@@ -34,4 +34,5 @@ if feedback_topic:
         Once ready, click the 'Create' button to redirect to GitHub where you can finalize your request.
         """
     )
-    st.link_button("Create", f"https://github.com/Zolikon/python-fastskilling/issues/new?title={feedback_topic}&body={text}",)
+    if text:
+        st.link_button("Create", f"https://github.com/Zolikon/python-fastskilling/issues/new?title={feedback_topic}&body={text}",)
