@@ -13,12 +13,17 @@ PROGRESS_KEY = 'lecture_progress'
 FINISHED_KEY = 'lecture_finished'
 localS = LocalStorage()
 
+
+
 def __get_lecture_id(lecture_name):
     return lecture_name[4:-3]
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 materials_dir = os.path.join(script_dir, '..','materials')
 lecture_list = sorted(os.listdir(materials_dir))
+
+if localS.getItem(PROGRESS_KEY) is None or not isinstance(localS.getItem(PROGRESS_KEY), str):
+    localS.setItem(PROGRESS_KEY, lecture_list[0])
 
 def get_current_lecture():
     stored_progress = localS.getItem(PROGRESS_KEY)
