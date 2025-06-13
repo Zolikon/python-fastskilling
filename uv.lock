@@ -429,7 +429,7 @@ wheels = [
 ]
 
 [[package]]
-name = "python-upskilling"
+name = "python-fastskilling"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
