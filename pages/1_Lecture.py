@@ -24,12 +24,6 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 materials_dir = os.path.join(script_dir, '..','materials')
 lecture_list = sorted(os.listdir(materials_dir))
 
-
-
-# if localS.getItem(PROGRESS_KEY) is None:
-#     localS.setItem(PROGRESS_KEY, lecture_list[0])
-#     localS.setItem(FINISHED_KEY, [])   
-
 st.session_state[PROGRESS_KEY] = localS.getItem(PROGRESS_KEY) or lecture_list[0]
 st.session_state[FINISHED_KEY] = localS.getItem(FINISHED_KEY) or []
 

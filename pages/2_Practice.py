@@ -11,6 +11,12 @@ st.set_page_config(
     layout="wide",
 )
 
+
+FINISHED_KEY = 'practice_finished'
+def LocalStorageManager():
+    return LocalStorage()
+localS = LocalStorageManager()
+
 generated_scenarios = [
     {
         "title": "Redact Username Decorator",
@@ -376,19 +382,21 @@ generated_scenarios = [
 
 ]
 
+st.session_state[FINISHED_KEY] = localS.getItem(FINISHED_KEY) or {}
+
 scenarios = sorted(generated_scenarios, key=lambda x: x["difficulty"])
 
+def get_current_code():
+    finished_code = st.session_state.get(FINISHED_KEY, {}).get(st.session_state['current_scenario']['title'])
+    return finished_code or st.session_state['current_scenario'].get('initial_code', "")
 st.session_state.setdefault('current_scenario', scenarios[0])
-st.session_state.setdefault('current_code', {})
+st.session_state.setdefault('current_code',get_current_code())
+
+def is_scenario_finished(scenario_title):
+    return scenario_title in st.session_state[FINISHED_KEY].keys()
 
 def save_current_code(code):
-    current_code = st.session_state["current_code"] or {}
-    current_code[current_scenario["title"]] = code
-    st.session_state["current_code"] = current_code
-
-def get_current_code():
-    current_code = st.session_state.get("current_code", {})
-    return current_code.get(current_scenario["title"], current_scenario["initial_code"])
+    st.session_state["current_code"] = code
 
 current_scenario = st.session_state['current_scenario']
 
@@ -401,10 +409,12 @@ def translate_difficulty(difficulty):
         return "Hard"
     else:
         return "Unknown"
-
+st.sidebar.button("Reset Progress",
+                  on_click=lambda: localS.setItem(FINISHED_KEY, {}), 
+                  disabled=not bool(st.session_state[FINISHED_KEY]))
 st.sidebar.write("## Scenarios")
 for scenario in scenarios: 
-    st.sidebar.button(f"{translate_difficulty(scenario["difficulty"])} - {scenario["title"]}", 
+    st.sidebar.button(f"{"✅ " if is_scenario_finished(scenario["title"]) else ""}{translate_difficulty(scenario["difficulty"])} - {scenario["title"]}", 
                       key=f"{scenario["title"]}_sidebar", use_container_width=True, on_click=lambda s=scenario: st.session_state.update(current_scenario=s))
 
 
@@ -476,7 +486,7 @@ if response_dict["text"]:
     save_current_code(response_dict["text"])
     try:
         code = response_dict["text"]
-        #validate_code_for_security(code)
+        validate_code_for_security(code)
         validate_no_override_builtins(code)
         exec(code, globals())
         errors = 0
@@ -504,6 +514,12 @@ if response_dict["text"]:
                     st.success("Your code meets the optional restrictions.")
                 else:
                     st.warning(f"Your code does not meet the optional restrictions, expected at most {current_scenario['optional_code_goal']['max_lines']} lines of code to be used")
+            if errors == 0:
+                st.success("All tests passed successfully!")
+                if scenario_title not in st.session_state[FINISHED_KEY]:
+                    st.session_state[FINISHED_KEY][scenario_title] = response_dict["text"]
+                    localS.setItem(FINISHED_KEY, st.session_state[FINISHED_KEY])
+                st.rerun()
         else:
             st.error("Function 'add_numbers' not found.")
     except Exception as e:
