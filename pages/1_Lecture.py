@@ -67,7 +67,7 @@ with open(os.path.join(materials_dir, get_current_lecture()), 'r') as f:
     content = f.read()
     col1, col2 = st.columns(2)
 
-    st.checkbox("Mark complete", key="toggle_lecture", value=False, on_change=lambda: toggle_lecture_done(get_current_lecture()))
+    st.checkbox("Mark complete", key="toggle_lecture", value=is_lecture_done(get_current_lecture()), on_change=lambda: toggle_lecture_done(get_current_lecture()))
     with col1:
         st.button(
             "Previous Lecture",
