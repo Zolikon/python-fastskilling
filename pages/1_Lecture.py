@@ -11,7 +11,11 @@ st.set_page_config(
 
 PROGRESS_KEY = 'lecture_progress'
 FINISHED_KEY = 'lecture_finished'
-localS = LocalStorage()
+def LocalStorageManager():
+    return LocalStorage()
+localS = LocalStorageManager()
+
+
 
 def __get_lecture_id(lecture_name):
     return lecture_name[4:-3]
@@ -20,41 +24,46 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 materials_dir = os.path.join(script_dir, '..','materials')
 lecture_list = sorted(os.listdir(materials_dir))
 
-if localS.getItem(PROGRESS_KEY) is None:
-    localS.setItem(PROGRESS_KEY, lecture_list[0])
-    localS.setItem(FINISHED_KEY, [])   
+
+
+# if localS.getItem(PROGRESS_KEY) is None:
+#     localS.setItem(PROGRESS_KEY, lecture_list[0])
+#     localS.setItem(FINISHED_KEY, [])   
+
+st.session_state[PROGRESS_KEY] = localS.getItem(PROGRESS_KEY) or lecture_list[0]
+st.session_state[FINISHED_KEY] = localS.getItem(FINISHED_KEY) or []
 
 def get_current_lecture():
-    stored_progress = localS.getItem(PROGRESS_KEY) or []
+    stored_progress = st.session_state[PROGRESS_KEY] or []
     if stored_progress:
         return next((lec for lec in lecture_list if __get_lecture_id(lec) == stored_progress), lecture_list[0])
 
 def update_progress(lecture_name):
     lecture_id = __get_lecture_id(lecture_name)
     localS.setItem(PROGRESS_KEY, lecture_id)
+    st.session_state[PROGRESS_KEY] = lecture_id
 
 def toggle_lecture_done(lecture_name):
-    finished = localS.getItem(FINISHED_KEY) or []
+    finished = st.session_state[FINISHED_KEY] or []
     lecture_id = __get_lecture_id(lecture_name)
     if lecture_id in finished:
         finished.remove(lecture_id)
     else:
         finished.append(lecture_id)
     localS.setItem(FINISHED_KEY, finished)
+    st.session_state[FINISHED_KEY] = finished
 
 def is_any_lecture_done():
-    return bool(localS.getItem(FINISHED_KEY) or [])
+    return bool(st.session_state[FINISHED_KEY] or [])
 
 def is_lecture_done(lecture_name):
-    return __get_lecture_id(lecture_name) in (localS.getItem(FINISHED_KEY) or [])
+    return __get_lecture_id(lecture_name) in (st.session_state[FINISHED_KEY] or [])
 
 def is_first_lecture():
     return get_current_lecture() == lecture_list[0]
 
 def is_last_lecture():
     return get_current_lecture() == lecture_list[-1]
-
-
 
 current_lecture = get_current_lecture().split('.')[0].split('_', maxsplit=2)[1]
 
