@@ -1,7 +1,7 @@
 [project]
-name = "python-upskilling"
-version = "0.1.0"
-description = "Add your description here"
+name = "python-fastskilling"
+version = "1.0.0"
+description = "Python learning platform for kick off with Python"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
