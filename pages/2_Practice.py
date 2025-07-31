@@ -5,6 +5,9 @@ import builtins
 
 from streamlit_local_storage import LocalStorage
 from utils.scenarios import generated_scenarios
+import io
+import sys
+import json
 
 st.set_page_config(
     page_title="Python | Skill Test",
@@ -81,20 +84,19 @@ st.title(scenario_title)
 
 col1, col2 = st.columns(2)
 with col1:
-    st.write("Hit Ctrl + Enter to run the code in the editor below.")
     st.markdown(
         current_scenario["description"]
     )
 
 
 with col2:
+    st.write("Hit Ctrl + Enter to run the code in the editor below.")
     response_dict = code_editor(get_current_code(), height=[10, 30], lang="python", key=scenario_title)
 
 
 def validate_code_for_security(code):
     dangerous_nodes = (
-        ast.Import, ast.ImportFrom, ast.Global, ast.Nonlocal,
-        ast.With, ast.AsyncWith, ast.Lambda, ast.Try, ast.Raise
+        ast.Import, ast.ImportFrom, ast.Global, ast.Nonlocal, ast.AsyncWith,
     )
     dangerous_names = {"exec", "eval", "open", "compile", "input", "__import__", "os", "sys", "subprocess"}
 
@@ -146,7 +148,14 @@ if response_dict["text"]:
         errors = 0
         if "test_setup_code" in current_scenario:
             try:
-                exec(current_scenario["test_setup_code"], globals())
+                stdout_buffer = io.StringIO()
+                old_stdout = sys.stdout
+                try:
+                    sys.stdout = stdout_buffer
+                    exec(current_scenario["test_setup_code"], globals())
+                finally:
+                    sys.stdout = old_stdout
+                st.write("Test setup output:", stdout_buffer.getvalue())
             except Exception as e:
                 raise ValueError(f"Test setup code execution failed: {e}")
         if current_scenario["function_name"] in globals():
@@ -173,7 +182,12 @@ if response_dict["text"]:
                 if scenario_title not in st.session_state[FINISHED_KEY]:
                     st.session_state[FINISHED_KEY][scenario_title] = response_dict["text"]
                     localS.setItem(FINISHED_KEY, st.session_state[FINISHED_KEY])
-                st.rerun()
+                    st.rerun()
+            else:
+                st.expander("Test Cases", expanded=False).code(
+                    json.dumps(current_scenario["test_cases"], indent=2), 
+                    language="json"
+                )
         else:
             st.error("Function 'add_numbers' not found.")
     except Exception as e:

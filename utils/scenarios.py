@@ -538,5 +538,54 @@ generated_scenarios = [
             "description": "Adding two zero lengths should return Centimeter(0)."
         }
     ]
+},
+{
+    "title": "Lambda Functions and Functional Programming",
+    "difficulty": 2,
+    "description": (
+        "Create a function called `process_data` that takes a list of dictionaries and applies various transformations "
+        "using lambda functions. The function should:\n"
+        "1. Filter out dictionaries where 'age' is less than 18\n"
+        "2. Transform each remaining dictionary by adding a 'category' field:\n"
+        "   - 'young' if age < 30\n"
+        "   - 'adult' if age >= 30 and < 60\n"
+        "   - 'senior' if age >= 60\n"
+        "3. Sort the results by age in ascending order\n\n"
+        "Use lambda functions with filter(), map(), and sorted() built-in functions.\n\n"
+        "For example:\n"
+        "```python\n"
+        "data = [{'name': 'Alice', 'age': 25}, {'name': 'Bob', 'age': 15}, {'name': 'Charlie', 'age': 65}]\n"
+        "process_data(data)  # [{'name': 'Alice', 'age': 25, 'category': 'young'}, {'name': 'Charlie', 'age': 65, 'category': 'senior'}]\n"
+        "```\n"
+        "This demonstrates understanding of lambda functions and functional programming concepts in Python."
+    ),
+    "initial_code": (
+        "def process_data(data):\n"
+        "    # Your code here - use lambda functions with filter, map, and sorted\n"
+        "    pass"
+    ),
+    "function_name": "process_data",
+    "test_cases": [
+        {
+            "input": ([{'name': 'Alice', 'age': 25}, {'name': 'Bob', 'age': 15}, {'name': 'Charlie', 'age': 65}],),
+            "expected_output": [{'name': 'Alice', 'age': 25, 'category': 'young'}, {'name': 'Charlie', 'age': 65, 'category': 'senior'}],
+            "description": "Should filter out minors, add categories, and sort by age."
+        },
+        {
+            "input": ([{'name': 'David', 'age': 45}, {'name': 'Eve', 'age': 30}, {'name': 'Frank', 'age': 17}],),
+            "expected_output": [{'name': 'Eve', 'age': 30, 'category': 'adult'}, {'name': 'David', 'age': 45, 'category': 'adult'}],
+            "description": "Should handle adult category and filter out minors."
+        },
+        {
+            "input": ([{'name': 'Grace', 'age': 29}, {'name': 'Henry', 'age': 60}],),
+            "expected_output": [{'name': 'Grace', 'age': 29, 'category': 'young'}, {'name': 'Henry', 'age': 60, 'category': 'senior'}],
+            "description": "Should handle boundary cases for categories."
+        },
+        {
+            "input": ([{'name': 'Ian', 'age': 10}, {'name': 'Jane', 'age': 16}],),
+            "expected_output": [],
+            "description": "Should return empty list when all are minors."
+        }
+    ]
 }
 ]
